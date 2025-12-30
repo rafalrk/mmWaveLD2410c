@@ -1,16 +1,16 @@
 button:
   - platform: template
     name: "Enable LD2410 BLE"
+    entity_category: "config"
     icon: mdi:bluetooth
-    entity_category: config
     on_press:
       lambda: |-
         id(ld2410_radar)->ble_control(true);
 
   - platform: template
     name: "Disable LD2410 BLE"
+    entity_category: "config"
     icon: mdi:bluetooth-off
-    entity_category: config
     on_press:
       lambda: |-
         id(ld2410_radar)->ble_control(false);
@@ -18,16 +18,16 @@ button:
   - platform: template
     name: "LD2410 Reboot"
     icon: mdi:radar
-    entity_category: config
+    entity_category: "config"
     on_press:
       lambda: |-
         id(ld2410_radar)->reboot();
 
   - platform: restart
-    name: "ESP Reboot"
     icon: mdi:power-cycle
+    name: "ESP Reboot"
 
   - platform: factory_reset
+    disabled_by_default: True
     name: Factory Reset
     id: factory_reset_all
-    disabled_by_default: true
