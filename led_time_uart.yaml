@@ -1,0 +1,25 @@
+# =======================
+# LED / TIME / UART
+# =======================
+light:
+  - platform: status_led
+    name: sys_status
+    pin: GPIO15
+    internal: true
+    restore_mode: ALWAYS_OFF
+
+time:
+  - platform: sntp
+    id: time_sntp
+
+uart:
+  id: uart_ld2410
+  tx_pin: GPIO18
+  rx_pin: GPIO33
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+ld2410:
+  timeout: 150s
+  id: ld2410_radar
