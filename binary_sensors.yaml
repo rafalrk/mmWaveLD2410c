@@ -2,70 +2,54 @@
 # BINARY SENSORS
 # =======================
 binary_sensor:
-  - platform: status
-    name: Online
-    id: ink_ha_connected
-
-  - platform: ld2410
-    has_target:
-      name: Presence
-      id: ld2410_has_target
-    has_moving_target:
-      name: Moving Target
-      id: has_moving_target
-    has_still_target:
-      name: Still Target
-      id: has_still_target
-
-  - platform: gpio
-    name: "OUT Pin"
-    id: ld2410_out_pin
-    pin:
-      number: GPIO16
-      mode:
-        input: true
-      inverted: false
-    device_class: motion
-
-  # ===== STREFA 1 (WC / ŁAZIENKA) =====
+  # ===== STREFA 1 (GŁÓWNA – WC / ŁAZIENKA) =====
   - platform: template
     id: presence_zone_1
     name: "Presence Zone 1"
     device_class: occupancy
     filters:
-      - delayed_off: 5s
+      - delayed_off: 1s   # BYŁO: 5s → TERAZ SZYBKO
     lambda: |-
       // brak targetu = brak obecności
       if (!id(ld2410_has_target).state) return false;
 
-      // TRYB PRYSZNIC / WC → preferuj STILL
-      float d = 0;
+      // ======================
+      // FAST PATH – RUCH
+      // ======================
+      if (id(has_moving_target).state &&
+          id(moving_distance).has_state() &&
+          id(moving_distance).state > 0) {
 
-      if (id(has_still_target).state &&
-          id(still_distance).has_state() &&
-          id(still_distance).state > 0) {
-        // PRIORYTET STILL (siedzenie, prysznic)
-        d = id(still_distance).state;
-      }
-      else if (id(detection_distance).has_state() &&
-               id(detection_distance).state > 0) {
-        // fallback
-        d = id(detection_distance).state;
-      }
-      else {
-        return true;
-      }
+        float dm = id(moving_distance).state;
 
-      // ignorowanie drzwi / lustra / kota
-      if (id(ignore_static_reflections).state) {
-        if (id(still_energy).has_state() &&
-            id(still_energy).state < 30) {
-          return false;
+        if (dm >= id(zone1_min_distance).state &&
+            dm <= id(zone1_max_distance).state) {
+          return true;   // NATYCHMIASTOWA REAKCJA
         }
       }
 
-      return d >= id(zone1_min_distance).state &&
-             d <= id(zone1_max_distance).state;
+      // ======================
+      // STABLE PATH – STILL
+      // ======================
+      if (id(has_still_target).state &&
+          id(still_distance).has_state() &&
+          id(still_distance).state > 0) {
+
+        float ds = id(still_distance).state;
+
+        // ignorowanie odbić (lustra / drzwi / kot)
+        if (id(ignore_static_reflections).state &&
+            id(still_energy).has_state() &&
+            id(still_energy).state < 30) {
+          return false;
+        }
+
+        return ds >= id(zone1_min_distance).state &&
+               ds <= id(zone1_max_distance).state;
+      }
+
+      // fallback: target jest → obecność
+      return true;
 
   # ===== STREFA 2 (DALEJ / ZA DRZWIAMI) =====
   - platform: template
@@ -73,13 +57,18 @@ binary_sensor:
     name: "Presence Zone 2"
     device_class: occupancy
     filters:
-      - delayed_off: 5s
+      - delayed_off: 1s   # BYŁO: 5s → TERAZ SZYBKO
     lambda: |-
       if (!id(ld2410_has_target).state) return false;
-      if (!id(detection_distance).has_state() ||
-          id(detection_distance).state <= 0) return false;
 
-      float d = id(detection_distance).state;
+      if (id(has_moving_target).state &&
+          id(moving_distance).has_state() &&
+          id(moving_distance).state > 0) {
 
-      return d >= id(zone2_min_distance).state &&
-             d <= id(zone2_max_distance).state;
+        float dm = id(moving_distance).state;
+
+        return dm >= id(zone2_min_distance).state &&
+               dm <= id(zone2_max_distance).state;
+      }
+
+      return false;
