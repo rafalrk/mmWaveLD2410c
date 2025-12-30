@@ -1,0 +1,47 @@
+# =======================
+# NUMBERS (SUWAKI)
+# =======================
+number:
+  - platform: template
+    name: "Zone 1 MIN distance (cm)"
+    id: zone1_min_distance
+    min_value: 0
+    max_value: 200
+    step: 10
+    initial_value: 0
+    restore_value: true
+    optimistic: true
+    entity_category: config
+
+  - platform: template
+    name: "Zone 1 MAX distance (cm)"
+    id: zone1_max_distance
+    min_value: 50
+    max_value: 400
+    step: 10
+    initial_value: 220
+    restore_value: true
+    optimistic: true
+    entity_category: config
+
+  - platform: template
+    name: "Zone 2 MIN distance (cm)"
+    id: zone2_min_distance
+    min_value: 200
+    max_value: 600
+    step: 10
+    initial_value: 230
+    restore_value: true
+    optimistic: true
+    entity_category: config
+
+  - platform: template
+    name: "Zone 2 MAX distance (cm)"
+    id: zone2_max_distance
+    min_value: 300
+    max_value: 800
+    step: 10
+    initial_value: 450
+    restore_value: true
+    optimistic: true
+    entity_category: config
