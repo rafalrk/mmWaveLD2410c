@@ -1,0 +1,65 @@
+esphome:
+  name: radar-lazienka
+  comment: Radar Lazienka
+  friendly_name: Radar Lazienka
+  name_add_mac_suffix: True
+  platformio_options:
+    board_build.flash_mode: dio
+    board_build.f_cpu: 80000000L
+  project: 
+    name: radar.lazienka
+    version: 1U
+  min_version: 2025.5.1
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/screek-workshop/custom_components_support_for_screek_1u
+      ref: master
+    components: [ ld2410 ]
+
+esp32:
+  board: lolin_s2_mini
+  framework:
+    type: esp-idf
+
+improv_serial:
+
+logger:
+  hardware_uart: uart0
+
+api:
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: "xxx"
+  password: "zzz"
+  output_power: 19dB
+  power_save_mode: LIGHT
+  reboot_timeout: 10min
+  fast_connect: true
+  #manual_ip:
+    #static_ip: 20.0.10.2
+    #gateway: 20.0.0.1
+    #subnet: 255.255.0.0
+    #dns1: 20.0.0.1
+    #dns2: 8.8.8.8
+  ap:
+    ssid: "mmwave"
+    password: "Pass.Word"
+
+captive_portal:
+
+web_server:
+  port: 80
+
+packages:
+  mmwave_binary_sensors: github://rafalrk/mmWaveLD2410c/binary_sensors.yaml@main
+  mmwave_sensors:        github://rafalrk/mmWaveLD2410c/sensors.yaml@main
+  mmwave_numbers:        github://rafalrk/mmWaveLD2410c/numbers.yaml@main
+  mmwave_switches:       github://rafalrk/mmWaveLD2410c/switches.yaml@main
+  mmwave_buttons:        github://rafalrk/mmWaveLD2410c/buttons.yaml@main
+  mmwave_led_uart_time:  github://rafalrk/mmWaveLD2410c/led_time_uart.yaml@main
