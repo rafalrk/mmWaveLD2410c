@@ -26,3 +26,60 @@ binary_sensor:
         input: true
       inverted: false
     device_class: motion
+
+  # ===== STREFA 1 (WC / ŁAZIENKA) =====
+  - platform: template
+    id: presence_zone_1
+    name: "Presence Zone 1"
+    device_class: occupancy
+    filters:
+      - delayed_off: 5s
+    lambda: |-
+      // brak targetu = brak obecności
+      if (!id(ld2410_has_target).state) return false;
+
+      // TRYB PRYSZNIC / WC → preferuj STILL
+      float d = 0;
+
+      if (id(has_still_target).state &&
+          id(still_distance).has_state() &&
+          id(still_distance).state > 0) {
+        // PRIORYTET STILL (siedzenie, prysznic)
+        d = id(still_distance).state;
+      }
+      else if (id(detection_distance).has_state() &&
+               id(detection_distance).state > 0) {
+        // fallback
+        d = id(detection_distance).state;
+      }
+      else {
+        return true;
+      }
+
+      // ignorowanie drzwi / lustra / kota
+      if (id(ignore_static_reflections).state) {
+        if (id(still_energy).has_state() &&
+            id(still_energy).state < 30) {
+          return false;
+        }
+      }
+
+      return d >= id(zone1_min_distance).state &&
+             d <= id(zone1_max_distance).state;
+
+  # ===== STREFA 2 (DALEJ / ZA DRZWIAMI) =====
+  - platform: template
+    id: presence_zone_2
+    name: "Presence Zone 2"
+    device_class: occupancy
+    filters:
+      - delayed_off: 5s
+    lambda: |-
+      if (!id(ld2410_has_target).state) return false;
+      if (!id(detection_distance).has_state() ||
+          id(detection_distance).state <= 0) return false;
+
+      float d = id(detection_distance).state;
+
+      return d >= id(zone2_min_distance).state &&
+             d <= id(zone2_max_distance).state;
