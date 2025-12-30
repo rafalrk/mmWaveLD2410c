@@ -47,5 +47,5 @@ sensor:
       force_update: true
       filters:
         - median:
-            window_size: 5
-            send_every: 3
+            window_size: 3
+            send_every: 1
