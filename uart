@@ -1,0 +1,7 @@
+uart:
+  id: uart_ld2410
+  tx_pin: GPIO18
+  rx_pin: GPIO33
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
